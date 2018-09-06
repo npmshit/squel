@@ -23,11 +23,6 @@ function _isPlainObject(obj) {
   return obj && obj.constructor.prototype === Object.prototype;
 }
 
-// get whether object is an array
-function _isArray(obj) {
-  return obj && obj.constructor.prototype === Array.prototype;
-}
-
 // clone given item
 function _clone(src) {
   if (!src) {
@@ -36,7 +31,7 @@ function _clone(src) {
 
   if (typeof src.clone === "function") {
     return src.clone();
-  } else if (_isPlainObject(src) || _isArray(src)) {
+  } else if (_isPlainObject(src) || Array.isArray(src)) {
     let ret = new src.constructor();
 
     Object.getOwnPropertyNames(src).forEach(function(key) {
@@ -407,7 +402,7 @@ function _buildSquel(flavour = null) {
      * Format given value for inclusion into parameter values array.
      */
     _formatValueForParamArray(value, formattingOptions = {}) {
-      if (_isArray(value)) {
+      if (Array.isArray(value)) {
         return value.map(v => {
           return this._formatValueForParamArray(v, formattingOptions);
         });
@@ -433,7 +428,7 @@ function _buildSquel(flavour = null) {
       }
 
       // if it's an array then format each element separately
-      if (_isArray(value)) {
+      if (Array.isArray(value)) {
         value = value.map(v => {
           return this._formatValueForQueryString(v);
         });
@@ -544,7 +539,7 @@ function _buildSquel(flavour = null) {
             } else {
               value = this._formatValueForParamArray(value, formattingOptions);
 
-              if (_isArray(value)) {
+              if (Array.isArray(value)) {
                 // Array(6) -> "(??, ??, ??, ??, ??, ??)"
                 let tmpStr = value
                   .map(function() {
@@ -1090,7 +1085,7 @@ function _buildSquel(flavour = null) {
     # options.ignorePeriodsForFieldNameQuotes - whether to ignore period (.) when automatically quoting the field name
     */
     fields(_fields, options = {}) {
-      if (_isArray(_fields)) {
+      if (Array.isArray(_fields)) {
         for (let field of _fields) {
           this.field(field, null, options);
         }
@@ -1229,7 +1224,7 @@ function _buildSquel(flavour = null) {
     // Insert multiple rows for the given fields. Accepts an array of objects.
     // This will override all previously set values for every field.
     _setFieldsRows(fieldsRows, valueOptions = {}) {
-      if (!_isArray(fieldsRows)) {
+      if (!Array.isArray(fieldsRows)) {
         throw new Error("Expected an array of objects but got " + typeof fieldsRows);
       }
 
@@ -1260,7 +1255,7 @@ function _buildSquel(flavour = null) {
           }
 
           // The first value added needs to add the array
-          if (!_isArray(this._values[i])) {
+          if (!Array.isArray(this._values[i])) {
             this._values[i] = [];
             this._valueOptions[i] = [];
           }
@@ -1633,7 +1628,7 @@ function _buildSquel(flavour = null) {
           buildParameterized: options.buildParameterized
         });
 
-        (totalStr += ret.text), _isArray(ret.values) && ret.values.forEach(value => totalValues.push(value));
+        (totalStr += ret.text), Array.isArray(ret.values) && ret.values.forEach(value => totalValues.push(value));
 
         if (dir !== null) {
           totalStr += ` ${dir}`;
@@ -2503,7 +2498,7 @@ squel.flavours["postgres"] = function(_squel) {
       if (!conflictFields) {
         return;
       }
-      if (!_isArray(conflictFields)) {
+      if (!Array.isArray(conflictFields)) {
         conflictFields = [conflictFields];
       }
       this._dupFields = conflictFields.map(this._sanitizeField.bind(this));
