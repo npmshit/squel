@@ -3,21 +3,6 @@ function _pad(str, pad) {
   return str.length ? str + pad : str;
 }
 
-// Extend given object's with other objects' properties, overriding existing ones if necessary
-function _extend(dst, ...sources) {
-  if (dst && sources) {
-    for (let src of sources) {
-      if (typeof src === "object") {
-        Object.getOwnPropertyNames(src).forEach(function(key) {
-          dst[key] = src[key];
-        });
-      }
-    }
-  }
-
-  return dst;
-}
-
 // get whether object is a plain object
 function _isPlainObject(obj) {
   return obj && obj.constructor.prototype === Object.prototype;
@@ -182,7 +167,7 @@ function _buildSquel(flavour = null) {
     clone() {
       let newInstance = new this.constructor();
 
-      return _extend(newInstance, _clone(_extend({}, this)));
+      return Object.assign(newInstance, _clone(Object.assign({}, this)));
     }
   };
 
@@ -201,7 +186,7 @@ function _buildSquel(flavour = null) {
         defaults[p] = cls.DefaultQueryBuilderOptions[p];
       });
 
-      this.options = _extend({}, defaults, options);
+      this.options = Object.assign({}, defaults, options);
     }
 
     /**
@@ -635,11 +620,7 @@ function _buildSquel(flavour = null) {
      * @return {Object}
      */
     toParam(options = {}) {
-      return this._toParamString(
-        _extend({}, options, {
-          buildParameterized: true
-        })
-      );
+      return this._toParamString(Object.assign({}, options, { buildParameterized: true }));
     }
   };
 
@@ -756,7 +737,7 @@ function _buildSquel(flavour = null) {
         this._fieldName = this._sanitizeField(fieldName);
       }
 
-      this.options = _extend({}, cls.DefaultQueryBuilderOptions, options);
+      this.options = Object.assign({}, cls.DefaultQueryBuilderOptions, options);
 
       this._cases = [];
       this._elseValue = null;
@@ -1031,7 +1012,7 @@ function _buildSquel(flavour = null) {
   cls.FromTableBlock = class extends cls.AbstractTableBlock {
     constructor(options) {
       super(
-        _extend({}, options, {
+        Object.assign({}, options, {
           prefix: "FROM"
         })
       );
@@ -1046,7 +1027,7 @@ function _buildSquel(flavour = null) {
   cls.IntoTableBlock = class extends cls.AbstractTableBlock {
     constructor(options) {
       super(
-        _extend({}, options, {
+        Object.assign({}, options, {
           prefix: "INTO",
           singleTable: true
         })
@@ -1460,7 +1441,7 @@ function _buildSquel(flavour = null) {
   cls.OffsetBlock = class extends cls.AbstractVerbSingleValueBlock {
     constructor(options) {
       super(
-        _extend({}, options, {
+        Object.assign({}, options, {
           verb: "OFFSET"
         })
       );
@@ -1481,7 +1462,7 @@ function _buildSquel(flavour = null) {
   cls.LimitBlock = class extends cls.AbstractVerbSingleValueBlock {
     constructor(options) {
       super(
-        _extend({}, options, {
+        Object.assign({}, options, {
           verb: "LIMIT"
         })
       );
@@ -1560,7 +1541,7 @@ function _buildSquel(flavour = null) {
   cls.WhereBlock = class extends cls.AbstractConditionBlock {
     constructor(options) {
       super(
-        _extend({}, options, {
+        Object.assign({}, options, {
           verb: "WHERE"
         })
       );
@@ -1575,7 +1556,7 @@ function _buildSquel(flavour = null) {
   cls.HavingBlock = class extends cls.AbstractConditionBlock {
     constructor(options) {
       super(
-        _extend({}, options, {
+        Object.assign({}, options, {
           verb: "HAVING"
         })
       );
@@ -1883,16 +1864,16 @@ function _buildSquel(flavour = null) {
     # behaviour of your query builder mid-build.
     */
     updateOptions(options) {
-      this.options = _extend({}, this.options, options);
+      this.options = Object.assign({}, this.options, options);
 
       for (let block of this.blocks) {
-        block.options = _extend({}, block.options, options);
+        block.options = Object.assign({}, block.options, options);
       }
     }
 
     // Get the final fully constructed query param obj.
     _toParamString(options = {}) {
-      options = _extend({}, this.options, options);
+      options = Object.assign({}, this.options, options);
 
       let blockResults = this.blocks.map(b =>
         b._toParamString({
@@ -1991,7 +1972,7 @@ function _buildSquel(flavour = null) {
         new cls.StringBlock(options, "DELETE"),
         new cls.TargetTableBlock(options),
         new cls.FromTableBlock(
-          _extend({}, options, {
+          Object.assign({}, options, {
             singleTable: true
           })
         ),
@@ -2456,9 +2437,9 @@ squel.flavours["mssql"] = function(_squel) {
       blocks = blocks || [
         new cls.StringBlock(options, "DELETE"),
         new cls.TargetTableBlock(options),
-        new cls.FromTableBlock(_extend({}, options, { singleTable: true })),
+        new cls.FromTableBlock(Object.assign({}, options, { singleTable: true })),
         new cls.JoinBlock(options),
-        new cls.MssqlUpdateDeleteOutputBlock(_extend({}, options, { forDelete: true })),
+        new cls.MssqlUpdateDeleteOutputBlock(Object.assign({}, options, { forDelete: true })),
         new cls.WhereBlock(options),
         new cls.OrderByBlock(options),
         new cls.LimitBlock(options)
@@ -2748,11 +2729,7 @@ squel.flavours["postgres"] = function(_squel) {
         new cls.WithBlock(options),
         new cls.StringBlock(options, "DELETE"),
         new cls.TargetTableBlock(options),
-        new cls.FromTableBlock(
-          _extend({}, options, {
-            singleTable: true
-          })
-        ),
+        new cls.FromTableBlock(Object.assign({}, options, { singleTable: true })),
         new cls.JoinBlock(options),
         new cls.WhereBlock(options),
         new cls.OrderByBlock(options),
