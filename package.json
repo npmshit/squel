@@ -1,6 +1,6 @@
 {
   "name": "@blueshit/squel",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "squel without browser supports",
   "main": "index.js",
   "typings": "index.d.ts",

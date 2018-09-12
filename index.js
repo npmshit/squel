@@ -2090,6 +2090,10 @@ squel.useFlavour = function(flavour = null) {
 squel.flavours["mysql"] = function(_squel) {
   let cls = _squel.cls;
 
+  _squel.registerValueHandler(Date, function(date) {
+    return date;
+  });
+
   // ON DUPLICATE KEY UPDATE ...
   cls.MysqlOnDuplicateKeyUpdateBlock = class extends cls.AbstractSetFieldBlock {
     onDupUpdate(field, value, options) {
